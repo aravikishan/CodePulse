@@ -21,6 +21,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# Updated for clarity
 def create_app(testing: bool = False) -> Flask:
     """Application factory for CodePulse.
 
