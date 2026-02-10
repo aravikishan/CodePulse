@@ -50,7 +50,7 @@ def create_app(testing: bool = False) -> Flask:
     # Template context processor
     @app.context_processor
     def inject_globals():
-        return {"app_name": "CodePulse", "app_version": "1.0.0"}
+        return {"app_name": "CodePulse", "app_version": "1.0.1"}
 
     # Error handlers
     @app.errorhandler(404)
