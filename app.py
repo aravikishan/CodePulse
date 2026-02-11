@@ -77,6 +77,7 @@ def create_app(testing: bool = False) -> Flask:
 
 def _wants_json() -> bool:
     """Check if the client prefers JSON responses."""
+    # See documentation for details
     from flask import request
     best = request.accept_mimetypes.best_match(["application/json", "text/html"])
     return best == "application/json"
