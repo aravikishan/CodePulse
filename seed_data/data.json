@@ -1,0 +1,58 @@
+{
+  "samples": [
+    {
+      "name": "simple_function",
+      "code": "def add(a, b):\n    return a + b\n",
+      "expected": {
+        "functions_count": 1,
+        "complexity_score": 1,
+        "grade": "A"
+      }
+    },
+    {
+      "name": "branching_logic",
+      "code": "def check(x):\n    if x > 0:\n        return 'positive'\n    elif x < 0:\n        return 'negative'\n    else:\n        return 'zero'\n",
+      "expected": {
+        "functions_count": 1,
+        "complexity_score": 3,
+        "grade": "A"
+      }
+    },
+    {
+      "name": "class_with_methods",
+      "code": "class Calculator:\n    def add(self, a, b):\n        return a + b\n\n    def subtract(self, a, b):\n        return a - b\n\n    def multiply(self, a, b):\n        return a * b\n",
+      "expected": {
+        "classes_count": 1,
+        "functions_count": 3,
+        "grade": "A"
+      }
+    },
+    {
+      "name": "nested_loops",
+      "code": "def matrix_search(matrix, target):\n    for row in matrix:\n        for item in row:\n            if item == target:\n                return True\n    return False\n",
+      "expected": {
+        "functions_count": 1,
+        "complexity_score": 4,
+        "grade": "A"
+      }
+    },
+    {
+      "name": "complex_function",
+      "code": "def process(data, config):\n    results = []\n    for item in data:\n        if item.active:\n            if item.score > config.threshold:\n                try:\n                    results.append(item.transform())\n                except ValueError:\n                    pass\n            elif item.score < 0:\n                results.append(item.default())\n        else:\n            if config.include_inactive:\n                results.append(item)\n    return results\n",
+      "expected": {
+        "functions_count": 1,
+        "grade": "B"
+      }
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Sample code snippets for CodePulse demonstration and testing",
+    "metrics_computed": [
+      "cyclomatic_complexity",
+      "halstead_metrics",
+      "maintainability_index",
+      "code_smell_detection"
+    ]
+  }
+}
