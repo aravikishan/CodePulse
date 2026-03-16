@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}CodePulse - Analyze{% endblock %}
+
+{% block content %}
+{% if analysis and details %}
+{# === Show results for a saved analysis === #}
+<section class="page-header">
+    <div class="page-header-row">
+        <div>
+            <h1>Analysis: {{ analysis.filename }}</h1>
+            <p>Performed on {{ analysis.created_at.strftime('%Y-%m-%d at %H:%M UTC') if analysis.created_at else 'N/A' }}</p>
+        </div>
+        <div class="grade-badge grade-lg grade-{{ analysis.grade | lower }}">{{ analysis.grade }}</div>
+    </div>
+</section>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-value">{{ analysis.total_lines }}</span>
+        <span class="stat-label">Total Lines</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">{{ analysis.code_lines }}</span>
+        <span class="stat-label">Code Lines</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">{{ analysis.functions_count }}</span>
+        <span class="stat-label">Functions</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">{{ analysis.classes_count }}</span>
+        <span class="stat-label">Classes</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">{{ analysis.complexity_score }}</span>
+        <span class="stat-label">Complexity</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">{{ analysis.maintainability_index | round(1) }}</span>
+        <span class="stat-label">Maintainability</span>
+    </div>
+</div>
+
+<div class="metrics-row">
+    <div class="metric-card">
+        <h3>Halstead Metrics</h3>
+        <div class="metric-list">
+            <div class="metric-item"><span class="metric-label">Volume</span><span class="metric-val">{{ details.halstead_volume }}</span></div>
+            <div class="metric-item"><span class="metric-label">Difficulty</span><span class="metric-val">{{ details.halstead_difficulty }}</span></div>
+            <div class="metric-item"><span class="metric-label">Effort</span><span class="metric-val">{{ details.halstead_effort }}</span></div>
+            <div class="metric-item"><span class="metric-label">Est. Bugs</span><span class="metric-val">{{ details.halstead_bugs }}</span></div>
+            <div class="metric-item"><span class="metric-label">Est. Time (s)</span><span class="metric-val">{{ details.halstead_time }}</span></div>
+        </div>
+    </div>
+    <div class="metric-card">
+        <h3>Line Counts</h3>
+        <div class="metric-list">
+            <div class="metric-item"><span class="metric-label">Total</span><span class="metric-val">{{ details.total_lines }}</span></div>
+            <div class="metric-item"><span class="metric-label">Code</span><span class="metric-val">{{ details.code_lines }}</span></div>
+            <div class="metric-item"><span class="metric-label">Comments</span><span class="metric-val">{{ details.comment_lines }}</span></div>
+            <div class="metric-item"><span class="metric-label">Blank</span><span class="metric-val">{{ details.blank_lines }}</span></div>
+        </div>
+    </div>
+</div>
+
+{% if details.get('smells') %}
+<div class="detail-panel">
+    <h3>Code Smells <span class="badge">{{ details.smell_count }}</span></h3>
+    <div class="smells-list">
+        {% for smell in details['smells'] %}
+        <div class="smell-item">
+            <span class="severity-badge severity-{{ smell.get('severity', 'info') }}">
+                {{ smell.get('severity', 'info') }}
+            </span>
+            <span class="smell-type-tag">{{ smell.get('type', '') }}</span>
+            <span class="smell-message">{{ smell.get('message', '') }}</span>
+            {% if smell.get('line') %}
+            <span class="smell-line">Line {{ smell['line'] }}</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if details.get('functions') %}
+<div class="detail-panel">
+    <h3>Functions <span class="badge">{{ details.functions_count }}</span></h3>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Line</th>
+                    <th>Args</th>
+                    <th>Complexity</th>
+                    <th>Nesting</th>
+                    <th>Lines</th>
+                    <th>Docstring</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fn in details['functions'] %}
+                <tr>
+                    <td><code>{{ fn['name'] }}</code></td>
+                    <td>{{ fn['line'] }}</td>
+                    <td>{{ fn.get('arg_count', fn.get('args', []) | length) }}</td>
+                    <td><span class="complexity-val {% if fn['complexity'] > 10 %}text-red{% elif fn['complexity'] > 5 %}text-yellow{% else %}text-green{% endif %}">{{ fn['complexity'] }}</span></td>
+                    <td>{{ fn.get('nesting_depth', 'N/A') }}</td>
+                    <td>{{ fn.get('lines', 'N/A') }}</td>
+                    <td>{{ '&#10003;' if fn.get('has_docstring') else '&#10007;' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% if details.get('classes') %}
+<div class="detail-panel">
+    <h3>Classes <span class="badge">{{ details.classes_count }}</span></h3>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Line</th>
+                    <th>Methods</th>
+                    <th>Bases</th>
+                    <th>Lines</th>
+                    <th>Docstring</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cls in details['classes'] %}
+                <tr>
+                    <td><code>{{ cls['name'] }}</code></td>
+                    <td>{{ cls['line'] }}</td>
+                    <td>{{ cls.get('method_count', cls.get('methods', []) | length) }}</td>
+                    <td>{{ cls.get('bases', []) | join(', ') or 'None' }}</td>
+                    <td>{{ cls.get('lines', 'N/A') }}</td>
+                    <td>{{ '&#10003;' if cls.get('has_docstring') else '&#10007;' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% if details.get('imports') %}
+<div class="detail-panel">
+    <h3>Imports <span class="badge">{{ details.imports | length }}</span></h3>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr><th>Module</th><th>Alias</th><th>Line</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+                {% for imp in details['imports'] %}
+                <tr>
+                    <td><code>{{ imp['module'] }}</code></td>
+                    <td>{{ imp.get('alias') or '-' }}</td>
+                    <td>{{ imp['line'] }}</td>
+                    <td>{{ imp.get('type', 'import') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<div class="action-bar">
+    <a href="/analyze" class="btn btn-primary">New Analysis</a>
+    <a href="/history" class="btn btn-secondary">View History</a>
+</div>
+
+{% else %}
+{# === Show the code input form === #}
+<section class="page-header">
+    <h1>Analyze Python Code</h1>
+    <p>Paste your Python source code below to get detailed analysis with complexity scoring,
+       Halstead metrics, maintainability index, and code smell detection.</p>
+</section>
+
+<section class="analyzer-section">
+    <div class="code-input-panel">
+        <div class="panel-header">
+            <h2>Source Code</h2>
+            <div class="panel-actions">
+                <input type="text" id="filename" class="filename-input"
+                    placeholder="filename.py" value="untitled.py">
+                <button class="btn btn-secondary" onclick="loadSampleCode()">Load Sample</button>
+                <button class="btn btn-primary" onclick="analyzeCode()">
+                    <span class="btn-icon">&#9654;</span> Analyze
+                </button>
+            </div>
+        </div>
+        <div id="editor-container" class="editor-container">
+            <textarea id="code-input" class="code-textarea"
+                placeholder="Paste your Python code here..."
+                spellcheck="false"></textarea>
+        </div>
+    </div>
+</section>
+
+<div id="loading" class="loading-indicator" style="display:none;">
+    <div class="spinner"></div>
+    <p>Analyzing code&hellip;</p>
+</div>
+
+<section id="results-panel" class="results-section" style="display:none;">
+    <div class="results-header">
+        <h2>Analysis Results</h2>
+        <div id="grade-badge" class="grade-badge grade-lg grade-a">A</div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-value" id="stat-lines">0</span>
+            <span class="stat-label">Lines</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="stat-code-lines">0</span>
+            <span class="stat-label">Code Lines</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="stat-functions">0</span>
+            <span class="stat-label">Functions</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="stat-classes">0</span>
+            <span class="stat-label">Classes</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="stat-complexity">0</span>
+            <span class="stat-label">Complexity</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="stat-mi">0</span>
+            <span class="stat-label">Maintainability</span>
+        </div>
+    </div>
+
+    <div class="metrics-row">
+        <div class="metric-card">
+            <h3>Halstead Metrics</h3>
+            <div class="metric-list" id="halstead-metrics">
+            </div>
+        </div>
+        <div class="metric-card">
+            <h3>Complexity Breakdown</h3>
+            <canvas id="complexityChart" width="280" height="200"></canvas>
+        </div>
+    </div>
+
+    <div class="detail-panels">
+        <div class="detail-panel">
+            <h3>Code Smells <span id="smell-count" class="badge">0</span></h3>
+            <div id="smells-list" class="smells-list">
+                <p class="empty-state">No code smells detected.</p>
+            </div>
+        </div>
+
+        <div class="detail-panel">
+            <h3>Functions</h3>
+            <div class="table-container">
+                <table class="data-table" id="functions-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Line</th>
+                            <th>Args</th>
+                            <th>Complexity</th>
+                            <th>Nesting</th>
+                            <th>Lines</th>
+                        </tr>
+                    </thead>
+                    <tbody id="functions-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="detail-panel">
+            <h3>Classes</h3>
+            <div class="table-container">
+                <table class="data-table" id="classes-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Line</th>
+                            <th>Methods</th>
+                            <th>Bases</th>
+                            <th>Lines</th>
+                        </tr>
+                    </thead>
+                    <tbody id="classes-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    initCodeEditor();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}CodePulse - Analysis History{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="page-header-row">
+        <div>
+            <h1>Analysis History</h1>
+            <p>Browse all past code analyses.</p>
+        </div>
+        <a href="/analyze" class="btn btn-primary">New Analysis</a>
+    </div>
+</section>
+
+<div class="table-container">
+    {% if analyses %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Filename</th>
+                <th>Grade</th>
+                <th>Lines</th>
+                <th>Complexity</th>
+                <th>MI</th>
+                <th>Smells</th>
+                <th>Functions</th>
+                <th>Classes</th>
+                <th>Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for a in analyses %}
+            <tr>
+                <td>{{ a.id }}</td>
+                <td><code>{{ a.filename }}</code></td>
+                <td><span class="grade-badge grade-sm grade-{{ a.grade | lower }}">{{ a.grade }}</span></td>
+                <td>{{ a.total_lines }}</td>
+                <td>{{ a.complexity_score }}</td>
+                <td>{{ a.maintainability_index | round(1) }}</td>
+                <td>{{ a.smell_count }}</td>
+                <td>{{ a.functions_count }}</td>
+                <td>{{ a.classes_count }}</td>
+                <td>{{ a.created_at.strftime('%Y-%m-%d %H:%M') if a.created_at else 'N/A' }}</td>
+                <td>
+                    <a href="/analysis/{{ a.id }}" class="btn btn-sm btn-secondary">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state-container">
+        <div class="empty-state-icon">&#128203;</div>
+        <h3>No analyses yet</h3>
+        <p class="empty-state">No analyses yet. <a href="/analyze">Analyze some code</a> to get started.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

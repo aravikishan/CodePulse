@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}CodePulse - About{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1>About CodePulse</h1>
+    <p>A Python code analysis tool built with Flask and the AST module.</p>
+</section>
+
+<div class="about-content">
+    <div class="about-section">
+        <h2>What is CodePulse?</h2>
+        <p>CodePulse is a static analysis tool for Python source code. It parses your code
+           into an Abstract Syntax Tree (AST) and computes a range of quality metrics
+           without ever executing the code.</p>
+    </div>
+
+    <div class="about-section">
+        <h2>Metrics Computed</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>&#9881; Cyclomatic Complexity</h3>
+                <p>Measures the number of linearly independent paths through your code.
+                   Higher complexity means more test cases needed. We count branches
+                   from <code>if</code>, <code>for</code>, <code>while</code>,
+                   <code>except</code>, <code>with</code>, <code>and</code>/<code>or</code>,
+                   <code>assert</code>, and comprehensions.</p>
+            </div>
+            <div class="feature-card">
+                <h3>&#128202; Halstead Metrics</h3>
+                <p>Quantifies code using operators and operands. We compute
+                   <strong>Volume</strong> (size of implementation),
+                   <strong>Difficulty</strong> (how hard to understand),
+                   <strong>Effort</strong> (mental effort to develop),
+                   estimated <strong>Bugs</strong>, and estimated
+                   <strong>Development Time</strong>.</p>
+            </div>
+            <div class="feature-card">
+                <h3>&#128200; Maintainability Index</h3>
+                <p>A composite score (0-100) based on Halstead Volume, cyclomatic
+                   complexity, and lines of code. Uses the Microsoft variant:
+                   <code>MI = max(0, (171 - 5.2*ln(V) - 0.23*G - 16.2*ln(LOC)) * 100/171)</code></p>
+            </div>
+            <div class="feature-card">
+                <h3>&#128067; Code Smell Detection</h3>
+                <p>Identifies common anti-patterns: long functions (&gt;50 lines),
+                   too many parameters (&gt;5), deep nesting (&gt;4 levels),
+                   high function complexity (&gt;10), missing docstrings, unused imports,
+                   magic numbers, god classes (&gt;15 methods), and duplicate code blocks.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <h2>Grading Scale</h2>
+        <div class="grade-scale">
+            <div class="grade-item"><span class="grade-badge grade-a">A</span> Excellent maintainability, low complexity</div>
+            <div class="grade-item"><span class="grade-badge grade-b">B</span> Good quality, moderate complexity</div>
+            <div class="grade-item"><span class="grade-badge grade-c">C</span> Acceptable but could be improved</div>
+            <div class="grade-item"><span class="grade-badge grade-d">D</span> Poor quality, consider refactoring</div>
+            <div class="grade-item"><span class="grade-badge grade-f">F</span> Very poor, syntax errors or major issues</div>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <h2>REST API</h2>
+        <div class="api-docs">
+            <div class="api-endpoint">
+                <span class="api-method get">GET</span>
+                <code>/api/health</code>
+                <span class="api-desc">Service health check</span>
+            </div>
+            <div class="api-endpoint">
+                <span class="api-method post">POST</span>
+                <code>/api/analyze</code>
+                <span class="api-desc">Analyze Python code (JSON body: <code>{"code": "...", "filename": "..."}</code>)</span>
+            </div>
+            <div class="api-endpoint">
+                <span class="api-method get">GET</span>
+                <code>/api/analyses</code>
+                <span class="api-desc">List recent analyses (query: <code>?limit=20</code>)</span>
+            </div>
+            <div class="api-endpoint">
+                <span class="api-method get">GET</span>
+                <code>/api/analyses/&lt;id&gt;</code>
+                <span class="api-desc">Get single analysis with full details</span>
+            </div>
+            <div class="api-endpoint">
+                <span class="api-method delete">DELETE</span>
+                <code>/api/analyses/&lt;id&gt;</code>
+                <span class="api-desc">Delete an analysis record</span>
+            </div>
+            <div class="api-endpoint">
+                <span class="api-method get">GET</span>
+                <code>/api/stats</code>
+                <span class="api-desc">Aggregate statistics and grade distribution</span>
+            </div>
+            <div class="api-endpoint">
+                <span class="api-method get">GET</span>
+                <code>/api/sample</code>
+                <span class="api-desc">Get sample code snippet</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <h2>Tech Stack</h2>
+        <div class="tech-list">
+            <span class="tech-tag">Python 3.11</span>
+            <span class="tech-tag">Flask 3.0</span>
+            <span class="tech-tag">SQLAlchemy 2.0</span>
+            <span class="tech-tag">SQLite</span>
+            <span class="tech-tag">Pydantic 2.5</span>
+            <span class="tech-tag">Chart.js</span>
+            <span class="tech-tag">CodeMirror</span>
+            <span class="tech-tag">pytest</span>
+            <span class="tech-tag">Docker</span>
+            <span class="tech-tag">GitHub Actions</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

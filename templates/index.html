@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}CodePulse - Dashboard{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>CodePulse</h1>
+    <p class="hero-subtitle">Python code analysis powered by AST parsing. Get instant insights on
+        complexity, maintainability, and code smells.</p>
+    <div class="hero-actions">
+        <a href="/analyze" class="btn btn-primary btn-lg">Analyze Code</a>
+        <a href="/about" class="btn btn-secondary btn-lg">Learn More</a>
+    </div>
+</section>
+
+<section class="dashboard-stats">
+    <h2 class="section-title">Overview</h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-value">{{ stats.total_analyses }}</span>
+            <span class="stat-label">Analyses Run</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value">{{ stats.avg_complexity }}</span>
+            <span class="stat-label">Avg Complexity</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value">{{ stats.avg_mi }}</span>
+            <span class="stat-label">Avg Maintainability</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value">{{ stats.total_lines_analyzed }}</span>
+            <span class="stat-label">Lines Analyzed</span>
+        </div>
+    </div>
+</section>
+
+{% if stats.grade_distribution %}
+<section class="dashboard-charts">
+    <div class="chart-row">
+        <div class="chart-card">
+            <h3>Grade Distribution</h3>
+            <canvas id="gradeChart" width="300" height="300"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>Average Metrics</h3>
+            <canvas id="metricsChart" width="300" height="300"></canvas>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if recent %}
+<section class="dashboard-recent">
+    <div class="section-header">
+        <h2 class="section-title">Recent Analyses</h2>
+        <a href="/history" class="btn btn-secondary btn-sm">View All</a>
+    </div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Grade</th>
+                    <th>Lines</th>
+                    <th>Complexity</th>
+                    <th>MI</th>
+                    <th>Smells</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in recent %}
+                <tr>
+                    <td><code>{{ a.filename }}</code></td>
+                    <td><span class="grade-badge grade-sm grade-{{ a.grade | lower }}">{{ a.grade }}</span></td>
+                    <td>{{ a.total_lines }}</td>
+                    <td>{{ a.complexity_score }}</td>
+                    <td>{{ a.maintainability_index | round(1) }}</td>
+                    <td>{{ a.smell_count }}</td>
+                    <td>{{ a.created_at.strftime('%b %d, %H:%M') if a.created_at else 'N/A' }}</td>
+                    <td><a href="/analysis/{{ a.id }}" class="btn btn-sm btn-secondary">View</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% else %}
+<section class="empty-state-container">
+    <div class="empty-state-icon">&#128269;</div>
+    <h3>No analyses yet</h3>
+    <p>Start by analyzing some Python code to see results here.</p>
+    <a href="/analyze" class="btn btn-primary">Analyze Code</a>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const gradeData = {{ stats.grade_distribution | tojson }};
+    if (gradeData && Object.keys(gradeData).length > 0) {
+        renderGradeChart(gradeData);
+        renderMetricsChart({{ stats.avg_complexity }}, {{ stats.avg_mi }}, {{ stats.avg_smells }});
+    }
+});
+</script>
+{% endblock %}
