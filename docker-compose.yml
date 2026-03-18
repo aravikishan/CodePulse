@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  codepulse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: codepulse
+    ports:
+      - "8000:8000"
+    environment:
+      - CODEPULSE_PORT=8000
+      - CODEPULSE_DEBUG=false
+      - SECRET_KEY=change-me-in-production
+    volumes:
+      - codepulse-data:/app/instance
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  codepulse-data:
