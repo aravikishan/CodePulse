@@ -1,0 +1,3 @@
+# Changelog
+
+- Fixed reported issues
