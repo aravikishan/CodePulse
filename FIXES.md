@@ -1,3 +1,0 @@
-# Changelog
-
-- Fixed reported issues
